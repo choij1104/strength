@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a1a1a">
+<meta name="description" content="4-week dumbbell strength program. Daily sessions, double progression, weigh-in log. Works offline.">
+<title>Strength — 4-Week Dumbbell Program</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+:root{
+  --bg:#f7f5f0; --card:#ffffff; --ink:#1c1a17; --ink-soft:#6b6259;
+  --line:#e5ded4; --accent:#b3400a; --accent-deep:#8a3208;
+  --good:#1e7e34; --warn:#b3400a; --chip:#efe9de;
+  --radius:14px;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.45;
+  max-width:620px; margin:0 auto; padding:0 12px 96px;
+}
+header.app{padding:18px 4px 10px;}
+header.app h1{margin:0;font-size:24px;letter-spacing:-0.3px;}
+header.app p{margin:4px 0 0;color:var(--ink-soft);font-size:14px;}
+nav.tabs{
+  position:sticky;top:0;z-index:50;background:var(--bg);
+  display:flex;gap:6px;padding:10px 0;overflow-x:auto;
+}
+nav.tabs button{
+  flex:1 0 auto;min-height:48px;padding:10px 14px;border-radius:12px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink);
+  font-size:15px;font-weight:600;cursor:pointer;white-space:nowrap;
+}
+nav.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+section.tab{display:none;}
+section.tab.on{display:block;}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px;margin:10px 0;
+}
+.card h2{margin:0 0 6px;font-size:18px;}
+.card h3{margin:0 0 4px;font-size:16px;}
+.muted{color:var(--ink-soft);font-size:13px;}
+.badge{
+  display:inline-block;background:var(--chip);border-radius:999px;
+  padding:3px 10px;font-size:12px;font-weight:700;margin:2px 4px 2px 0;
+}
+.badge.up{background:#e2f2e6;color:var(--good);}
+.badge.deload{background:#f7e8dc;color:var(--warn);}
+.badge.done{background:#e2f2e6;color:var(--good);}
+button.big, .btn{
+  display:block;width:100%;min-height:52px;margin:8px 0;
+  border-radius:12px;border:none;background:var(--accent);color:#fff;
+  font-size:16px;font-weight:700;cursor:pointer;
+}
+button.big:active,.btn:active{background:var(--accent-deep);}
+.btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);}
+.btn.small{min-height:44px;font-size:14px;}
+.ex{border-top:1px solid var(--line);padding:12px 0;}
+.ex:first-of-type{border-top:none;}
+.ex-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+.ex-head .t{font-weight:700;font-size:16px;}
+.ex-head .r{color:var(--ink-soft);font-size:13px;white-space:nowrap;}
+.cue{color:var(--ink-soft);font-size:13px;margin:4px 0 8px;}
+.wrow{display:flex;gap:8px;align-items:center;margin:6px 0;}
+.wrow label{font-size:14px;font-weight:600;}
+.wrow input{
+  width:110px;min-height:48px;font-size:17px;padding:8px 10px;
+  border:1px solid var(--line);border-radius:10px;
+}
+.sets{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;}
+.set{
+  min-width:64px;min-height:56px;border-radius:12px;cursor:pointer;
+  border:1px solid var(--line);background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:6px 8px;
+}
+.set .n{font-size:11px;color:var(--ink-soft);}
+.set .v{font-size:17px;font-weight:700;}
+.set.hit{background:#e2f2e6;border-color:var(--good);}
+.stepper{display:flex;align-items:center;gap:6px;}
+.stepper button{
+  width:48px;height:48px;border-radius:10px;border:1px solid var(--line);
+  background:var(--card);font-size:20px;font-weight:700;cursor:pointer;
+}
+.grid28{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.dcell{
+  aspect-ratio:1;border:1px solid var(--line);border-radius:10px;background:var(--card);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;cursor:pointer;min-height:48px;
+}
+.dcell .dt{font-size:10px;color:var(--ink-soft);font-weight:400;}
+.dcell.today{border:2px solid var(--accent);}
+.dcell.done{background:#e2f2e6;}
+.dcell.future{opacity:0.55;}
+table.log{width:100%;border-collapse:collapse;font-size:14px;}
+table.log th,table.log td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;}
+table.log th{color:var(--ink-soft);font-weight:600;font-size:12px;}
+input[type=number],input[type=text]{font-size:16px;}
+.timer{font-size:34px;font-weight:800;text-align:center;margin:6px 0;}
+.kv{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px;}
+.kv:last-child{border-bottom:none;}
+footer.safe{margin:26px 4px 0;color:var(--ink-soft);font-size:12px;}
+.hidden{display:none !important;}
+</style>
+</head>
+<body>
+<header class="app">
+  <h1>Strength</h1>
+  <p id="subtitle">4-week dumbbell program</p>
+</header>
+<nav class="tabs" id="tabs">
+  <button data-tab="today" class="on">Today</button>
+  <button data-tab="program">Program</button>
+  <button data-tab="history">History</button>
+  <button data-tab="weigh">Weigh-in</button>
+  <button data-tab="rules">Rules</button>
+</nav>
+
+<section class="tab on" id="tab-today"></section>
+<section class="tab" id="tab-program"></section>
+<section class="tab" id="tab-history"></section>
+<section class="tab" id="tab-weigh"></section>
+<section class="tab" id="tab-rules"></section>
+
+<footer class="safe">
+  Stop any exercise if you feel sharp pain. This app is a training log, not medical advice.
+  <br>HAKOYA LLC
+</footer>
+<script>
+"use strict";
+
+/* ============ Program data ============ */
+const START = "2026-10-03"; // Day 1 (Saturday)
+const DAYS = 28;
+const ROT = ["A","B","C"];
+const ROT_NAME = {A:"Push — chest / shoulders / triceps",
+                  B:"Pull — back / biceps",
+                  C:"Legs + core"};
+
+/* sets, lo, hi, rest seconds, main lift flag */
+const EX = {
+A:[
+ {id:"floor-press", name:"DB Floor Press", sets:4, lo:8, hi:12, rest:90, main:true,
+  cue:"Lie on the floor, elbows at 45 degrees, press up."},
+ {id:"ohp", name:"DB Overhead Press", sets:4, lo:8, hi:12, rest:90, main:true,
+  cue:"Standing, brace your core, press overhead."},
+ {id:"floor-fly", name:"DB Floor Fly", sets:3, lo:12, hi:15, rest:60,
+  cue:"Slight elbow bend. The floor stops the stretch."},
+ {id:"lateral-raise", name:"DB Lateral Raise", sets:3, lo:12, hi:15, rest:60,
+  cue:"Lead with the elbows, stop at shoulder height."},
+ {id:"tri-ext", name:"DB Overhead Triceps Extension", sets:3, lo:10, hi:15, rest:60,
+  cue:"Elbows close to head, lower the dumbbell behind you."}
+],
+B:[
+ {id:"bent-row", name:"DB Bent-Over Row", sets:4, lo:8, hi:12, rest:90, main:true,
+  cue:"Hinge at the hips, flat back, pull to your ribs."},
+ {id:"rdl", name:"DB Romanian Deadlift", sets:4, lo:8, hi:12, rest:90, main:true,
+  cue:"Push hips back, soft knees, feel the hamstrings."},
+ {id:"sa-row", name:"Single-Arm DB Row", sets:3, lo:10, hi:12, rest:60, side:true,
+  cue:"One hand braced, pull the dumbbell to your hip. Both sides."},
+ {id:"rev-fly", name:"DB Reverse Fly", sets:3, lo:12, hi:15, rest:60,
+  cue:"Hinged over, squeeze the shoulder blades together."},
+ {id:"curl", name:"DB Curl", sets:3, lo:10, hi:15, rest:60,
+  cue:"Elbows pinned at your sides, full range of motion."}
+],
+C:[
+ {id:"goblet", name:"DB Goblet Squat", sets:4, lo:8, hi:12, rest:90, main:true,
+  cue:"Hold the dumbbell at your chest, chest up, sit deep."},
+ {id:"rev-lunge", name:"DB Reverse Lunge", sets:3, lo:10, hi:12, rest:60, side:true,
+  cue:"Step back, front knee over ankle. Both legs."},
+ {id:"sumo", name:"DB Sumo Squat", sets:3, lo:12, hi:15, rest:60,
+  cue:"Wide stance, toes out, hold the dumbbell low."},
+ {id:"calf", name:"DB Calf Raise", sets:3, lo:15, hi:20, rest:45,
+  cue:"Hold dumbbells, rise on toes, pause at the top."},
+ {id:"plank", name:"Plank", sets:3, lo:45, hi:60, rest:45, timed:true,
+  cue:"Body in a straight line, keep breathing."},
+ {id:"russian", name:"Russian Twist", sets:3, lo:15, hi:20, rest:45,
+  cue:"Hold one dumbbell, rotate side to side."}
+]};
+
+/* ============ Date helpers ============ */
+function dstr(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function parseLocal(s){
+  const p=s.split("-").map(Number);
+  return new Date(p[0],p[1]-1,p[2]);
+}
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function todayStr(){ return dstr(new Date()); }
+function dayIndexFor(ds){
+  const n=Math.round((parseLocal(ds)-parseLocal(START))/86400000)+1;
+  return (n>=1&&n<=DAYS)?n:null;
+}
+function dateForDay(n){ return dstr(addDays(parseLocal(START),n-1)); }
+function rotFor(n){ return ROT[(n-1)%3]; }
+function isDeload(n){ return n>=22; }
+function weekdayShort(ds){
+  return parseLocal(ds).toLocaleDateString("en-US",{weekday:"short"});
+}
+function niceDate(ds){
+  return parseLocal(ds).toLocaleDateString("en-US",{month:"short",day:"numeric"});
+}
+function isWeighDay(ds){
+  const w=parseLocal(ds).getDay(); // 0 Sun..6 Sat
+  return w===2||w===4||w===6;      // Tue, Thu, Sat
+}
+
+/* ============ State (localStorage) ============ */
+const LS_KEY="strength.v1";
+let S={sessions:{},weigh:{},suggest:{}};
+try{
+  const raw=localStorage.getItem(LS_KEY);
+  if(raw){ const p=JSON.parse(raw); if(p&&typeof p==="object") S=Object.assign(S,p); }
+}catch(e){}
+function save(){ try{localStorage.setItem(LS_KEY,JSON.stringify(S));}catch(e){} }
+
+function getSession(ds){
+  if(!S.sessions[ds]) S.sessions[ds]={done:false,ex:{},finishedAt:null};
+  return S.sessions[ds];
+}
+/* suggested weight for an exercise: explicit suggestion, else last used weight */
+function lastWeight(exId, beforeDs){
+  const days=Object.keys(S.sessions).filter(d=>!beforeDs||d<beforeDs).sort();
+  for(let i=days.length-1;i>=0;i--){
+    const e=S.sessions[days[i]].ex[exId];
+    if(e&&typeof e.w==="number") return e.w;
+  }
+  return null;
+}
+function suggestedWeight(exId, ds, deload){
+  if(S.suggest[exId]&&typeof S.suggest[exId].w==="number"){
+    const w=S.suggest[exId].w;
+    delete S.suggest[exId];
+    return deload?Math.round(w*0.6*2)/2:w;
+  }
+  const lw=lastWeight(exId,ds);
+  if(lw==null) return null;
+  return deload?Math.round(lw*0.6*2)/2:lw;
+}
+/* double progression: all sets at hi reps -> suggest one dumbbell step up */
+function checkProgression(exDef, sessEx){
+  if(!sessEx||typeof sessEx.w!=="number") return false;
+  if(!sessEx.reps||sessEx.reps.length<exDef.sets) return false;
+  for(let i=0;i<exDef.sets;i++){
+    if((sessEx.reps[i]||0)<exDef.hi) return false;
+  }
+  return true;
+}
+function targetFor(exDef, deload){
+  if(!deload) return {sets:exDef.sets, lo:exDef.lo, hi:exDef.hi};
+  return {sets:exDef.main?3:2, lo:exDef.lo, hi:exDef.lo};
+}
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+
+/* ============ Tabs ============ */
+document.getElementById("tabs").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-tab]"); if(!b) return;
+  document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  document.querySelectorAll("section.tab").forEach(x=>x.classList.toggle("on",x.id==="tab-"+b.dataset.tab));
+  if(b.dataset.tab==="today") renderToday();
+  if(b.dataset.tab==="program") renderProgram();
+  if(b.dataset.tab==="history") renderHistory();
+  if(b.dataset.tab==="weigh") renderWeigh();
+  if(b.dataset.tab==="rules") renderRules();
+});
+
+/* ============ Today ============ */
+let timerInt=null;
+function stopTimer(){ if(timerInt){clearInterval(timerInt);timerInt=null;} }
+
+function renderToday(){
+  stopTimer();
+  const el=document.getElementById("tab-today");
+  const t=todayStr();
+  const n=dayIndexFor(t);
+  document.getElementById("subtitle").textContent =
+    n?("Day "+n+" of "+DAYS+" — "+niceDate(t)):"4-week dumbbell program";
+
+  if(!n){
+    const before=parseLocal(t)<parseLocal(START);
+    el.innerHTML='<div class="card"><h2>'+(before?"Program starts Oct 3":"Program complete")+'</h2>'+
+      '<p class="muted">'+(before
+        ?"Day 1 begins Saturday, October 3. Come back tomorrow."
+        :"28 days done. Start a new cycle or keep logging in History.")+'</p>'+
+      '<button class="btn ghost" onclick="document.querySelector(\'button[data-tab=program]\').click()">View program</button></div>';
+    return;
+  }
+  const rot=rotFor(n), deload=isDeload(n);
+  const sess=getSession(t);
+  let h='<div class="card"><h2>Day '+n+' — Workout '+rot+
+    (deload?' <span class="badge deload">DELOAD · 60%</span>':"")+
+    (sess.done?' <span class="badge done">DONE</span>':"")+'</h2>'+
+    '<p class="muted">'+niceDate(t)+' ('+weekdayShort(t)+') · '+esc(ROT_NAME[rot])+
+    (isWeighDay(t)?' · <b>Weigh-in morning</b>':"")+'</p></div>';
+
+  EX[rot].forEach(def=>{
+    const tg=targetFor(def,deload);
+    const se=sess.ex[def.id]||{};
+    if(se.w==null){
+      const sw=suggestedWeight(def.id,t,deload);
+      if(sw!=null) se.w=sw;
+    }
+    const unit=def.timed?"sec":"reps";
+    h+='<div class="card ex" id="ex-'+def.id+'"><div class="ex-head"><span class="t">'+esc(def.name)+
+      (def.side?' <span class="badge">each side</span>':"")+'</span>'+
+      '<span class="r">'+tg.sets+' × '+tg.lo+(tg.lo===tg.hi?"":"–"+tg.hi)+' '+unit+'</span></div>'+
+      '<div class="cue">'+esc(def.cue)+'</div>'+
+      '<div class="wrow"><label>Weight (lb)</label>'+
+      '<input type="number" inputmode="decimal" min="0" step="0.5" data-w="'+def.id+'" value="'+(se.w!=null?se.w:"")+'" placeholder="—"></div>'+
+      '<div class="sets">';
+    for(let i=0;i<tg.sets;i++){
+      const rv=(se.reps&&se.reps[i]!=null)?se.reps[i]:tg.hi;
+      const hit=se.hit&&se.hit[i];
+      h+='<div class="set'+(hit?" hit":"")+'" data-set="'+def.id+':'+i+'">'+
+        '<span class="n">Set '+(i+1)+'</span><span class="v">'+rv+'</span></div>';
+    }
+    h+='</div>'+
+      '<div class="stepper hidden" data-stepper="'+def.id+'">'+
+      '<button data-act="dec">−</button><span class="v" style="min-width:44px;text-align:center;font-weight:700">0</span>'+
+      '<button data-act="inc">+</button>'+
+      '<button class="btn small ghost" style="flex:1" data-act="toggle">Done</button></div>'+
+      '<button class="btn small ghost" data-timer="'+def.rest+'">Rest '+def.rest+'s</button>'+
+      '<div class="timer hidden" data-clock></div></div>';
+  });
+
+  h+='<button class="big" id="finishBtn">'+(sess.done?"Update session":"Finish workout")+'</button>';
+  h+='<div id="progMsg"></div>';
+  el.innerHTML=h;
+
+  /* wire set chips: tap selects, stepper edits reps, Done toggles */
+  let sel=null;
+  el.querySelectorAll(".set").forEach(chip=>{
+    chip.addEventListener("click",()=>{
+      const [exId,idx]=chip.dataset.set.split(":");
+      const i=+idx;
+      document.querySelectorAll('.stepper[data-stepper="'+exId+'"]').forEach(s=>s.classList.remove("hidden"));
+      const st=el.querySelector('.stepper[data-stepper="'+exId+'"] .v');
+      const se2=getSession(t).ex[exId]||{};
+      st.textContent=(se2.reps&&se2.reps[i]!=null)?se2.reps[i]:targetFor(EX[rot].find(d=>d.id===exId),deload).hi;
+      sel={exId:exId,i:i,chip:chip};
+    });
+  });
+  el.querySelectorAll(".stepper").forEach(st=>{
+    const exId=st.dataset.stepper;
+    st.addEventListener("click",e=>{
+      const b=e.target.closest("button"); if(!b) return;
+      const vEl=st.querySelector(".v");
+      let v=parseInt(vEl.textContent,10)||0;
+      if(b.dataset.act==="inc") v++;
+      if(b.dataset.act==="dec") v=Math.max(0,v-1);
+      vEl.textContent=v;
+      if(b.dataset.act==="toggle"&&sel&&sel.exId===exId){
+        const se3=getSession(t);
+        const def=EX[rot].find(d=>d.id===exId);
+        const tg=targetFor(def,deload);
+        if(!se3.ex[exId]) se3.ex[exId]={reps:[],hit:[]};
+        const r=se3.ex[exId];
+        while(r.reps.length<tg.sets) r.reps.push(tg.hi);
+        while(r.hit.length<tg.sets) r.hit.push(false);
+        r.reps[sel.i]=v; r.hit[sel.i]=!r.hit[sel.i];
+        save();
+        sel.chip.classList.toggle("hit",r.hit[sel.i]);
+        sel.chip.querySelector(".v").textContent=v;
+        st.classList.add("hidden"); sel=null;
+      }
+    });
+  });
+  el.querySelectorAll("input[data-w]").forEach(inp=>{
+    inp.addEventListener("change",()=>{
+      const se4=getSession(t);
+      if(!se4.ex[inp.dataset.w]) se4.ex[inp.dataset.w]={reps:[],hit:[]};
+      const v=parseFloat(inp.value);
+      se4.ex[inp.dataset.w].w=isNaN(v)?null:v;
+      save();
+    });
+  });
+  /* rest timers */
+  el.querySelectorAll("button[data-timer]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      stopTimer();
+      const card=btn.closest(".ex");
+      const clock=card.querySelector("[data-clock]");
+      clock.classList.remove("hidden");
+      let s=+btn.dataset.timer;
+      const tick=()=>{
+        const m=Math.floor(s/60), ss=s%60;
+        clock.textContent=m+":"+String(ss).padStart(2,"0");
+        if(s<=0){stopTimer();clock.textContent="Go.";beep();return;}
+        s--;
+      };
+      tick(); timerInt=setInterval(tick,1000);
+    });
+  });
+  document.getElementById("finishBtn").addEventListener("click",()=>{
+    const se5=getSession(t);
+    se5.done=true; se5.finishedAt=new Date().toISOString();
+    /* double progression suggestions */
+    let msgs=[];
+    EX[rot].forEach(def=>{
+      const tg=targetFor(def,deload);
+      const r=se5.ex[def.id];
+      if(r&&checkProgression(Object.assign({},def,{sets:tg.sets,hi:tg.hi}),r)&&!deload){
+        const nw=(typeof r.w==="number")?r.w:null;
+        if(nw!=null){ S.suggest[def.id]={w:nw}; msgs.push(def.name+": "+nw+" lb × "+tg.hi+" on all sets — go one dumbbell up next time."); }
+        else msgs.push(def.name+": all sets hit "+tg.hi+" — add weight next time.");
+      }
+    });
+    save(); renderToday();
+    const m=document.getElementById("progMsg");
+    if(msgs.length) m.innerHTML='<div class="card"><h3>Progression</h3><p class="muted">'+msgs.map(esc).join("<br>")+'</p></div>';
+  });
+}
+function beep(){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value=880; g.gain.value=0.15;
+    o.start(); o.stop(ctx.currentTime+0.4);
+  }catch(e){}
+}
+
+/* ============ Program grid ============ */
+function renderProgram(){
+  const el=document.getElementById("tab-program");
+  const t=todayStr();
+  let h='<div class="card"><h2>28-day plan</h2><p class="muted">Oct 3 – Oct 30. '+
+    'A = Push · B = Pull · C = Legs+core. Week 4 is deload (60%). '+
+    'Tap a day to preview it.</p></div><div class="grid28">';
+  for(let n=1;n<=DAYS;n++){
+    const ds=dateForDay(n);
+    const done=S.sessions[ds]&&S.sessions[ds].done;
+    h+='<div class="dcell'+(ds===t?" today":"")+(done?" done":"")+(dayIndexFor(t)&&n>dayIndexFor(t)?" future":"")+'" data-day="'+n+'">'+
+      '<span>'+rotFor(n)+'</span><span class="dt">'+niceDate(ds).replace(" ","")+'</span></div>';
+  }
+  h+="</div><div id='dayPrev'></div>";
+  el.innerHTML=h;
+  el.querySelectorAll(".dcell").forEach(c=>{
+    c.addEventListener("click",()=>{
+      const n=+c.dataset.day, ds=dateForDay(n), rot=rotFor(n), deload=isDeload(n);
+      let p='<div class="card"><h3>Day '+n+' — Workout '+rot+(deload?' <span class="badge deload">DELOAD</span>':"")+'</h3>'+
+        '<p class="muted">'+niceDate(ds)+' ('+weekdayShort(ds)+') · '+esc(ROT_NAME[rot])+'</p>';
+      EX[rot].forEach(def=>{
+        const tg=targetFor(def,deload);
+        p+='<div class="kv"><span>'+esc(def.name)+'</span><span>'+tg.sets+' × '+tg.lo+(tg.lo===tg.hi?"":"–"+tg.hi)+(def.timed?" sec":"")+'</span></div>';
+      });
+      p+="</div>";
+      document.getElementById("dayPrev").innerHTML=p;
+    });
+  });
+}
+
+/* ============ History ============ */
+function renderHistory(){
+  const el=document.getElementById("tab-history");
+  const days=Object.keys(S.sessions).filter(d=>S.sessions[d].done).sort().reverse();
+  let h='<div class="card"><h2>History</h2>';
+  if(!days.length){ h+='<p class="muted">No finished workouts yet.</p></div>'; el.innerHTML=h; return; }
+  h+='<table class="log"><tr><th>Date</th><th>Day</th><th>Volume (lb)</th></tr>';
+  days.forEach(ds=>{
+    const n=dayIndexFor(ds), s=S.sessions[ds];
+    let vol=0;
+    Object.keys(s.ex).forEach(id=>{
+      const r=s.ex[id];
+      if(r&&typeof r.w==="number"&&r.reps) r.reps.forEach(x=>{vol+=r.w*(x||0);});
+    });
+    h+="<tr><td>"+niceDate(ds)+"</td><td>"+(n?("D"+n+" · "+rotFor(n)):"—")+"</td><td>"+Math.round(vol).toLocaleString()+"</td></tr>";
+  });
+  h+="</table></div>";
+  h+='<div class="card"><h3>Data</h3><div style="display:flex;gap:8px;">'+
+    '<button class="btn small ghost" id="expBtn">Export JSON</button>'+
+    '<button class="btn small ghost" id="wipeBtn">Erase all data</button></div>'+
+    '<p class="muted">Export downloads your log as a file. Erase removes everything on this device.</p></div>';
+  el.innerHTML=h;
+  document.getElementById("expBtn").addEventListener("click",()=>{
+    const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob); a.download="strength-log.json"; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+  });
+  document.getElementById("wipeBtn").addEventListener("click",()=>{
+    if(confirm("Erase all workout data on this device?")){
+      S={sessions:{},weigh:{},suggest:{}}; save(); renderHistory(); renderToday();
+    }
+  });
+}
+
+/* ============ Weigh-in ============ */
+function renderWeigh(){
+  const el=document.getElementById("tab-weigh");
+  const keys=Object.keys(S.weigh).sort().reverse();
+  let h='<div class="card"><h2>Weigh-in</h2>'+
+    '<p class="muted">Step on the scale before breakfast on <b>Tue · Thu · Sat</b>. '+
+    'The number is data, not a grade. Streaks matter more than any single reading.</p>'+
+    '<div class="wrow"><label>Weight (lb)</label>'+
+    '<input type="number" inputmode="decimal" min="0" step="0.1" id="wIn" placeholder="—"></div>'+
+    '<button class="big" id="wAdd">Log today ('+niceDate(todayStr())+')</button></div>';
+  h+='<div class="card"><h3>Log</h3>';
+  if(!keys.length) h+='<p class="muted">Nothing logged yet.</p>';
+  else{
+    h+='<table class="log"><tr><th>Date</th><th>lb</th><th>kg</th></tr>';
+    keys.slice(0,30).forEach(k=>{
+      const lb=S.weigh[k], kg=(lb/2.20462).toFixed(1);
+      h+="<tr><td>"+niceDate(k)+"</td><td>"+lb+"</td><td>"+kg+"</td></tr>";
+    });
+    h+="</table>";
+  }
+  h+="</div>";
+  el.innerHTML=h;
+  document.getElementById("wAdd").addEventListener("click",()=>{
+    const v=parseFloat(document.getElementById("wIn").value);
+    if(isNaN(v)||v<=0){alert("Enter a weight first.");return;}
+    S.weigh[todayStr()]=Math.round(v*10)/10; save(); renderWeigh();
+  });
+}
+
+/* ============ Rules ============ */
+function renderRules(){
+  document.getElementById("tab-rules").innerHTML=
+  '<div class="card"><h2>Training rules</h2>'+
+  '<div class="kv"><span><b>1. Rotation.</b> Train daily, rotate muscle groups: A Push → B Pull → C Legs+core. Each group rests 48–72 hours.</span><span></span></div>'+
+  '<div class="kv"><span><b>2. Volume.</b> Main lifts 4 × 8–12, accessories 3 × 12–15. About 35–45 minutes a day.</span><span></span></div>'+
+  '<div class="kv"><span><b>3. Progression.</b> When every set hits the top of the rep range, go one dumbbell up next session. Week 4 is deload at 60%.</span><span></span></div>'+
+  '<div class="kv"><span><b>4. Missed day.</b> Never double up. Just continue the rotation where it left off.</span><span></span></div>'+
+  '<div class="kv"><span><b>5. Pain.</b> Sharp pain means stop that exercise immediately.</span><span></span></div>'+
+  '<div class="kv"><span><b>6. Logging.</b> Record weight × reps every day. Weigh in Tue / Thu / Sat mornings.</span><span></span></div>'+
+  '</div>';
+}
+
+/* ============ Init ============ */
+renderToday();
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
